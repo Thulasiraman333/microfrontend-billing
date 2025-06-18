@@ -1,5 +1,6 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { FormGroup, FormBuilder, Validators, FormArray } from '@angular/forms';
+import { CustomerReceiverService } from '../Services/customer-receiver.service';
 
 @Component({
   selector: 'app-billing',
@@ -9,12 +10,22 @@ import { FormGroup, FormBuilder, Validators, FormArray } from '@angular/forms';
 export class BillingComponent {
 
   billingForm: FormGroup;
+  customer: any;
 
+  receiverService = inject(CustomerReceiverService);
   constructor(private fb: FormBuilder) {
     this.billingForm = this.fb.group({
       customerName: ['', Validators.required],
       email: ['', [Validators.required, Validators.email]],
       items: this.fb.array([this.createItem()])
+    });
+  }
+  ngOnInit(): void {
+    this.receiverService.customer$.subscribe(data => {
+      if (data) {
+        console.log('[Billing] Got customer:', data);
+        this.customer = data;
+      }
     });
   }
 
@@ -56,4 +67,5 @@ export class BillingComponent {
       alert('Please fill out all required fields.');
     }
   }
+
 }
